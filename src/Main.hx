@@ -225,7 +225,7 @@ class Main {
 				w: g.width ,
 				h: g.height ,
 				xa: g.advance,
-				xo: g.xOffset,
+				xo: -g.xOffset,
 				yo: (file.base - g.yOffset),
 			});
 		}
