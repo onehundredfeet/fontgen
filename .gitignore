@@ -8,3 +8,9 @@ bin
 *.zip
 test/output/*
 native/hl/*
+.haxelib
+build_fontgen
+build_msdf
+build_msdf_debug
+build_msdf_release
+out.txt

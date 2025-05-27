@@ -1,17 +1,16 @@
 import haxe.io.Bytes;
-import msdfgen.StructAlias;
-import msdfgen.Msdfgen;
+import msdfgen.MSDFGen;
 import DataTypes;
 import Render;
 
 class GlyphRender implements  Render {
 	
-	static var METRICS:FontMetrics = new FontMetrics();
-	static var GLYPH:GlyphMetrics = new GlyphMetrics();
+	static var METRICS:FontMetrics = FontMetrics.make();
+	static var GLYPH:GlyphMetrics = GlyphMetrics.make();
 	
 	public var file:String;
 	/** Internal slot index **/
-	public var slot:Int;
+	public var slot:FontPtr;
 	
 	public var fontName:String;
 	public var unitsPerEm:Int;
@@ -30,12 +29,12 @@ class GlyphRender implements  Render {
 	var glyphMap:Map<Int, GlyphInfo>;
 	public var renderGlyphs:Array<GlyphInfo>;
 	
-	public function new(path:String, config:GenConfig)
+	public function new(library : FontLibraryPtr, path:String, config:GenConfig)
 	{
 		file = path;
 		
 		var m = METRICS;
-		slot = Msdfgen.initFont(path, m, config.fontSize);
+		slot = library.load(path, m, config.fontSize);
 		this.ascent = m.ascent;
 		this.descent = m.descent;
 		this.baseLine = m.baseLine;
@@ -49,15 +48,15 @@ class GlyphRender implements  Render {
 		this.dfRange = (mode==Raster)? 0 : config.dfSize;
 		this.extendWidth = config.padding.left + config.padding.right + dfRange;
 		this.extendHeight = config.padding.top + config.padding.bottom + dfRange;
-		var nameBytes:Bytes = Msdfgen.getFontName(slot);
-		fontName = "";
-		if (nameBytes.length != 0) {
-			var i = 0;
-			while (i < nameBytes.length) {
-				fontName += String.fromCharCode(nameBytes.get(i) << 8 | nameBytes.get(i+1));
-				i += 2;
-			}
-		}
+//		var nameBytes:Bytes = slot.getFontName();
+		fontName = slot.getName();
+		// if (nameBytes.length != 0) {
+		// 	var i = 0;
+		// 	while (i < nameBytes.length) {
+		// 		fontName += String.fromCharCode(nameBytes.get(i) << 8 | nameBytes.get(i+1));
+		// 		i += 2;
+		// 	}
+		// }
 		
 		glyphMap = [];
 		renderGlyphs = [];
@@ -72,7 +71,7 @@ class GlyphRender implements  Render {
 			g.renderer = this;
 			glyphMap.set(char, g);
 			var m = GLYPH;
-			if (Msdfgen.getGlyphMetrics(slot, char, m)) {
+			if (slot.getGlyphMetrics(char, m)) {
 				g.char = char;
 				g.width = m.width + extendWidth;
 				g.height = m.height+ extendHeight;
@@ -86,7 +85,7 @@ class GlyphRender implements  Render {
 		return g.char == -1 ? null : g;
 	}
 
-	public function renderToAtlas(){
+	public function renderToAtlas(atlas:Atlas){
 		var paddingLeft = config.padding.left;
 		var paddingTop = config.padding.top;
 		var paddingBottom = config.padding.bottom;
@@ -102,22 +101,22 @@ class GlyphRender implements  Render {
 			case MSDF:
 				for (g in renderGlyphs) {
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.generateMSDFGlyph(g.renderer.slot, g.char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g), g.isCCW, dfRange);
+						atlas.generateMSDFGlyph(g.renderer.slot, g.char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g), g.isCCW, dfRange);
 				}
 			case SDF:
 				for (g in renderGlyphs) {
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.generateSDFGlyph(g.renderer.slot, g.char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g), g.isCCW, dfRange);
+						atlas.generateSDFGlyph(g.renderer.slot, g.char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g), g.isCCW, dfRange);
 				}
 			case PSDF:
 				for (g in renderGlyphs) {
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.generatePSDFGlyph(g.renderer.slot, g.char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g), g.isCCW, dfRange);
+						atlas.generatePSDFGlyph(g.renderer.slot, g.char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g), g.isCCW, dfRange);
 				}
 			case Raster:
 				for (g in renderGlyphs) {
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.rasterizeGlyph(g.renderer.slot, g.char, g.width, g.height, canvasX(g) + paddingLeft, canvasY(g) + paddingTop); // todo is +padding required here, g.rect already contains it.
+						atlas.rasterizeGlyph(g.renderer.slot, g.char, g.width, g.height, canvasX(g) + paddingLeft, canvasY(g) + paddingTop); // todo is +padding required here, g.rect already contains it.
 				}
 		}
 	}

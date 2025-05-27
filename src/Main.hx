@@ -11,7 +11,7 @@ import haxe.io.Path;
 import binpacking.MaxRectsPacker;
 import GlyphRender;
 import DataTypes;
-import msdfgen.Msdfgen;
+import msdfgen.MSDFGen;
 import Render;
 
 typedef Ctx = {
@@ -23,6 +23,9 @@ typedef Ctx = {
 class Main {
 	static inline var SIZE:Int = 4096;
 	
+	static var fontLibrary : FontLibraryPtr;
+
+
 	static var atlasWidth : Int;
 	static var atlasHeight : Int;
 	
@@ -42,9 +45,9 @@ class Main {
 	static function main() {
 		var configs = readInput();
 		
-		
 		var start = ts();
-		Msdfgen.initializeFreetype();
+
+		var fontLibrary = FontLibraryPtr.alloc();
 
 		var globRenderers = [];
 		
@@ -78,7 +81,7 @@ class Main {
 			var renderers:Array<Render> = [];
 			for ( inp in config.inputs ) {
 				if (info) Sys.println("[Info] TTF: " + inp);
-				renderers.push(new GlyphRender(inp, config));
+				renderers.push(new GlyphRender(fontLibrary, inp, config));
 			}
 			var ttfParse = ts();
 			if (timings) Sys.println("[Timing] Parsed ttf: " + timeStr(ttfParse - stamp));
@@ -136,14 +139,14 @@ class Main {
 				cfg.spacing = sharedCfg.spacing;
 				writeFntFile(mergedCtxs.pngPath, cfg, ctx.glyphs, cast ctx.renderers[0]);
 			}
-			Msdfgen.unloadFonts();
+			fontLibrary.unloadAll();
 		} else {
 			for (config in configs) {
 				var stamp = ts();
 				var ctx = createContext(config);
 				buildAtlas(ctx, config);
 				writeFntFile(ctx.pngPath, config, ctx.glyphs, cast ctx.renderers[0]);
-				Msdfgen.unloadFonts();
+				fontLibrary.unloadAll();
 				if (timings) {
 					var ttfGen = ts();
 					Sys.println("[Timing] Total config processing time: " + timeStr(ttfGen - stamp));
@@ -151,7 +154,10 @@ class Main {
 			}
 		}
 		
-		Msdfgen.deinitializeFreetype();
+		//Msdfgen.deinitializeFreetype();
+		fontLibrary.free();
+		fontLibrary = null;
+		
 		if (timings && configs.length > 1) {
 			Sys.println("[Timing] Total work time: " + timeStr(ts() - start));
 		}
@@ -161,17 +167,21 @@ class Main {
 		var rasterR8:Bool = globalr8 || config.options.indexOf("r8raster") != -1;
 		var rasterMode = config.mode == Raster;
 		var bgColor = (rasterMode && !rasterR8) ? 0x00ffffff : 0xff000000;
-		Msdfgen.beginAtlas(atlasWidth, atlasHeight, bgColor, rasterR8);
+
+		var atlas = Atlas.make();
+
+		atlas.beginAtlas(atlasWidth, atlasHeight, bgColor, rasterR8);
 
 		for (renderer in renderers) {
 			if (renderer.renderGlyphs.length == 0)
 				continue;
 			if (info)
 				Sys.println("[Info] Started rendering glyphs from " + renderer.file);
-			renderer.renderToAtlas();
+			renderer.renderToAtlas(atlas);
 		}
 
-		Msdfgen.endAtlas(pngPath);
+		atlas.endAtlas();
+		//atlas.write(pngPath);
 	}
 
 	static function writeFntFile(pngPath, config, glyphs:Array<GlyphInfo>, renderer:Render){
@@ -183,11 +193,11 @@ class Main {
 				for (j in (i+1)...len) {
 					var right = glyphs[j];
 					if (right.renderer.slot == slot) {
-						var kern = Msdfgen.getKerning(slot, left.char, right.char);
+						var kern = slot.getKerning( left.char, right.char);
 						if (kern != 0) {
 							file.kernings.push({ first: left.char, second: right.char, amount: kern });
 						}
-						kern = Msdfgen.getKerning(slot, right.char, left.char);
+						kern = slot.getKerning(right.char, left.char);
 						if (kern != 0) {
 							file.kernings.push({ first: right.char, second: left.char, amount: kern });
 						}
@@ -433,7 +443,7 @@ class Main {
 	
 	static function jsonConfig(inp:String):Array<GenConfig> {
 		var cfg:Dynamic = Json.parse(inp);
-		if (Std.is(cfg, Array)) {
+		if (Std.isOfType(cfg, Array)) {
 			var arr:Array<GenConfig> = cfg;
 			for (conf in arr) {
 				fillTemplate(conf);

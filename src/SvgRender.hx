@@ -3,14 +3,14 @@ package;
 import DataTypes;
 import haxe.xml.Access;
 import Render;
-import msdfgen.Msdfgen;
+import msdfgen.MSDFGen;
 import sys.io.File;
 import haxe.xml.Parser;
 
 class SvgRender implements Render {
 	public var file:String;
 	public var renderGlyphs:Array<GlyphInfo> = [];
-
+	public var shapeLibrary:ShapeLibraryPtr;
 	inline static var ENDPOINT_SNAP_RANGE_PROPORTION = 1/16384.;
 	var dfRange = 5.;
 	var glyphMap:Map<Int, GlyphInfo> = new Map();
@@ -19,6 +19,15 @@ class SvgRender implements Render {
 
 	public function new(config) {
 		this.config = config;
+
+		shapeLibrary = ShapeLibraryPtr.alloc(); 
+	}
+
+	public function destroy() {
+		if (shapeLibrary != null) {
+			shapeLibrary.free();
+			shapeLibrary = null;
+		}
 	}
 
 	public function reg(char:Int, svgfile:String, path = "") {
@@ -28,8 +37,8 @@ class SvgRender implements Render {
 		glyphMap.set(char, gi);
 		var pathDef = loadSvg(svgfile, path);
 		var snapRange = calcEndpointSnapRange(svgfile);
-		var slotIndex = Msdfgen.initSvgShape(pathDef, config.fontSize, 1, snapRange);
-		var bounds = MsdfgenUtils.getBounds(slotIndex);
+		var slotIndex = shapeLibrary.loadSvgShape(pathDef, config.fontSize, 1, snapRange);
+		var bounds = slotIndex.getBounds();
 
 		gi.width = Math.ceil(bounds.r - bounds.l + dfRange);
 		gi.height = Math.ceil(bounds.t - bounds.b + dfRange);
@@ -83,7 +92,7 @@ class SvgRender implements Render {
 		return glyphMap.get(char);
 	}
 
-	public function renderToAtlas():Void {
+	public function renderToAtlas(atlas:Atlas):Void {
         inline function glyphWidth(g:GlyphInfo) return g.width;
 		inline function glyphHeight(g:GlyphInfo) return g.height;
 		inline function canvasX(g:GlyphInfo) return Std.int(g.rect.x) ;
@@ -96,21 +105,21 @@ class SvgRender implements Render {
 				for (g in renderGlyphs) {
 					var descr = svgDescrs.get(g.char);
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.generateMSDFPath(descr.slot, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g, descr), translateY(g, descr),
+						atlas.generateMSDFPath(descr.slot, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g, descr), translateY(g, descr),
 							dfRange, 1);
 				}
 			case SDF:
 				for (g in renderGlyphs) {
 					var descr = svgDescrs.get(g.char);
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.generateSDFPath(descr.slot, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g, descr), translateY(g, descr),
+						atlas.generateSDFPath(descr.slot, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g, descr), translateY(g, descr),
 							dfRange, 1);
 				}
 			case PSDF:
 				for (g in renderGlyphs) {
 					var descr = svgDescrs.get(g.char);
 					if (g.width != 0 && g.height != 0)
-						Msdfgen.generatePSDFPath(descr.slot, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g, descr), translateY(g, descr),
+						atlas.generatePSDFPath(descr.slot, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g, descr), translateY(g, descr),
 							dfRange, 1);
 				}
 			case Raster:
@@ -123,5 +132,5 @@ typedef SvgDescr = {
 	filename:String,
 	?pathName:String,
 	bounds:Bounds,
-	slot:Int
+	slot:ShapePtr
 }

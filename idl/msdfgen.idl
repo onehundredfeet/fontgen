@@ -1,0 +1,73 @@
+
+
+[Internal="msdfgen::Shape::Bounds"]
+object Bounds {
+    attribute double l;
+	attribute double b;
+	attribute double r;
+	attribute double t;
+};
+
+object FontMetrics {
+	FontMetrics new();
+
+	attribute int ascent;
+	attribute int descent;
+	attribute int unitsPerEm;
+	attribute int baseLine;
+	attribute int lineHeight;
+	attribute int flags;
+};
+
+object GlyphMetrics {
+	GlyphMetrics new();
+	
+	attribute int width;
+	attribute int height;
+	attribute int offsetX;
+	attribute int offsetY;
+	attribute int advanceX;
+	attribute int descent;
+	attribute bool ccw;
+};
+
+object Font {
+	bool getGlyphMetrics(int charcode, GlyphMetrics *metrics);
+	int getKerning(int left, int right);
+	String getName();
+};
+
+
+object FontLibrary {
+	FontLibrary new();
+	Font *load(String filename, FontMetrics *metrics, int fontSize);
+	void unloadAll();
+};
+
+
+object Atlas {
+	Atlas new();
+
+	void beginAtlas(int atlasWidth, int atlasHeight, int defaultColor, bool enforceR8);
+	iobytes endAtlas();
+
+	bool generateSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
+	bool generatePSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
+	bool generateMSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
+	bool rasterizeGlyph(Font *font, int charcode, int width, int height, int ox, int oy);
+
+	bool generateSDFPath(Shape *shape, double width, double height,  int ox, int oy, double tx, double ty, double range, double scale);
+	bool generateMSDFPath(Shape *shape, double width, double height,  int ox, int oy, double tx, double ty, double range, double scale);
+	bool generatePSDFPath(Shape *shape, double width, double height,  int ox, int oy, double tx, double ty, double range, double scale);
+
+};
+
+
+object Shape {
+	Bounds getBounds();
+};
+
+object ShapeLibrary {
+	ShapeLibrary new();
+	Shape *loadSvgShape(String path, int fontSize, double scale, double endpointSnapRange);
+};

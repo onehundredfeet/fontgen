@@ -1,11 +1,14 @@
 import binpacking.Rect;
+import msdfgen.MSDFGen;
+
 interface Render {
 	public var file:String;
 	public var renderGlyphs:Array<GlyphInfo>;
 	public function get(char:Int):GlyphInfo;
     
-	public function renderToAtlas():Void;
+	public function renderToAtlas(atlas:Atlas):Void;
 }
+
 class GlyphInfo {
 	
 	public var char:Int;

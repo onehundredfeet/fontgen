@@ -1,5 +1,6 @@
 package msdfgen;
 
+#if false
 import haxe.io.Bytes;
 
 // Bytes mapper for data transfer between C and Haxe.
@@ -48,3 +49,5 @@ abstract GlyphMetrics(Bytes) from Bytes to Bytes {
 	inline function get_descent() return this.getInt32(20);
 	inline function get_ccw() return this.getInt32(24) != 0;
 }
+
+#end

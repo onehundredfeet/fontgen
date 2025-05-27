@@ -1,0 +1,15 @@
+<xml>
+   <set name="MSDFGEN_ROOT" value="${MSDFGEN_IDL_DIR}"/>
+
+   <cppflag value="-I${MSDFGEN_ROOT}"/>
+   <cppflag value="-I${MSDFGEN_ROOT}/msdfgen"/>
+   <findlib value="freetype" link="true"/>  
+
+   <files id="msdfgen_lib">
+      <file name="${MSDFGEN_ROOT}/msdfgen_adapter.cpp" /> 
+   </files>
+   <target id="haxe">
+      <files id="msdfgen_lib" />
+   </target>
+</xml>
+

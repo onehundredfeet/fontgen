@@ -388,7 +388,7 @@ class Charset {
 	public static function parse(charsets:Array<Dynamic>):Array<Charset> {
 		var sets = [];
 		for (val in charsets) {
-			if (Std.is(val, String)) {
+			if (Std.isOfType(val, String)) {
 				var name:String = transformName(val);
 				var aliased = _ALIAS.get(name);
 				if (aliased != null) {
@@ -416,7 +416,7 @@ class Charset {
 						sets.push(exactChars(fpath));
 					}
 				}
-			} else if (Std.is(val, Array)) {
+			} else if (Std.isOfType(val, Array)) {
 				var sub = parse(val);
 				for (c in sub) {
 					sets.push(c);
