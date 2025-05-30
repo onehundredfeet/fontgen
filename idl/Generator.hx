@@ -49,7 +49,7 @@ class Generator {
             architecture: ArchAll,
 			hxDir:"idl",
             customCode: sampleCode,
-			includes: [], 
+			includes: ["msdfgen_adapter.h"], 
 			libs:[]
         };
 

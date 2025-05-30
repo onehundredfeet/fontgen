@@ -85,7 +85,7 @@ class GlyphRender implements  Render {
 		return g.char == -1 ? null : g;
 	}
 
-	public function renderToAtlas(atlas:Atlas){
+	public function renderToAtlas(atlas:AtlasPtr){
 		var paddingLeft = config.padding.left;
 		var paddingTop = config.padding.top;
 		var paddingBottom = config.padding.bottom;

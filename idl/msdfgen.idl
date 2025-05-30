@@ -1,6 +1,6 @@
 
 
-[Internal="msdfgen::Shape::Bounds"]
+
 object Bounds {
     attribute double l;
 	attribute double b;
@@ -8,6 +8,7 @@ object Bounds {
 	attribute double t;
 };
 
+[Internal="MSDFFontMetrics"]
 object FontMetrics {
 	FontMetrics new();
 
@@ -31,12 +32,12 @@ object GlyphMetrics {
 	attribute bool ccw;
 };
 
+[Internal="MSDFFont"]
 object Font {
 	bool getGlyphMetrics(int charcode, GlyphMetrics *metrics);
 	int getKerning(int left, int right);
 	String getName();
 };
-
 
 object FontLibrary {
 	FontLibrary new();
@@ -48,8 +49,8 @@ object FontLibrary {
 object Atlas {
 	Atlas new();
 
-	void beginAtlas(int atlasWidth, int atlasHeight, int defaultColor, bool enforceR8);
-	iobytes endAtlas();
+	void begin(int atlasWidth, int atlasHeight, int defaultColor, bool enforceR8);
+	iobytes end();
 
 	bool generateSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
 	bool generatePSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
@@ -62,7 +63,7 @@ object Atlas {
 
 };
 
-
+[Internal="MSDFShape"]
 object Shape {
 	Bounds getBounds();
 };

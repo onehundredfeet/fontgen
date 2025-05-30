@@ -92,7 +92,7 @@ class SvgRender implements Render {
 		return glyphMap.get(char);
 	}
 
-	public function renderToAtlas(atlas:Atlas):Void {
+	public function renderToAtlas(atlas:AtlasPtr):Void {
         inline function glyphWidth(g:GlyphInfo) return g.width;
 		inline function glyphHeight(g:GlyphInfo) return g.height;
 		inline function canvasX(g:GlyphInfo) return Std.int(g.rect.x) ;

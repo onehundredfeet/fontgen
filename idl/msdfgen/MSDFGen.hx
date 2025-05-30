@@ -119,10 +119,10 @@ abstract Atlas(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:hlNative("MSDFGen", "Atlas_new0")
 	static function new0():msdfgen.Atlas return cast(0, Atlas);
 	public inline function new():msdfgen.Atlas return new0();
-	@:hlNative("MSDFGen", "Atlas_beginAtlas4")
-	public function beginAtlas(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void { }
-	@:hlNative("MSDFGen", "Atlas_endAtlas0")
-	public function endAtlas():haxe.io.Bytes return null;
+	@:hlNative("MSDFGen", "Atlas_begin4")
+	public function begin(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void { }
+	@:hlNative("MSDFGen", "Atlas_end0")
+	public function end():haxe.io.Bytes return null;
 	@:hlNative("MSDFGen", "Atlas_generateSDFGlyph10")
 	public function generateSDFGlyph(font:Font, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return false;
 	@:hlNative("MSDFGen", "Atlas_generatePSDFGlyph10")
@@ -153,7 +153,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 #end
 #if cpp
 
-@:native("msdfgen::Shape::Bounds") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Bounds {
+@:native("Bounds") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Bounds {
 	public var l : Float;
 	public var b : Float;
 	public var r : Float;
@@ -165,7 +165,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:from
 	public static inline function fromCast(self:cpp.Reference<msdfgen.Bounds>):msdfgen.BoundsPtr return cpp.Pointer.addressOf(self);
 }
-@:native("FontMetrics") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class FontMetrics {
+@:native("MSDFFontMetrics") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class FontMetrics {
 	public var ascent : Int;
 	public var descent : Int;
 	public var unitsPerEm : Int;
@@ -173,11 +173,11 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public var lineHeight : Int;
 	public var flags : Int;
 	public inline function asPtr():msdfgen.FontMetricsPtr return cpp.Pointer.addressOf(this);
-	@:native("FontMetrics")
+	@:native("MSDFFontMetrics")
 	public static function make():msdfgen.FontMetrics;
 }
 @:forward @:forwardStatics @:unreflective extern abstract FontMetricsPtr(cpp.Pointer<msdfgen.FontMetrics>) from cpp.Pointer<msdfgen.FontMetrics> to cpp.Pointer<msdfgen.FontMetrics> {
-	@:native("new FontMetrics")
+	@:native("new MSDFFontMetrics")
 	public static extern function alloc():msdfgen.FontMetricsPtr;
 	@:native("delete ")
 	public extern function free():Void;
@@ -206,7 +206,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:from
 	public static inline function fromCast(self:cpp.Reference<msdfgen.GlyphMetrics>):msdfgen.GlyphMetricsPtr return cpp.Pointer.addressOf(self);
 }
-@:native("Font") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Font {
+@:native("MSDFFont") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Font {
 	public extern function getGlyphMetrics(charcode:Int, metrics:GlyphMetricsPtr):Bool;
 	public extern function getKerning(left:Int, right:Int):Int;
 	public extern function getName():String;
@@ -239,8 +239,8 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static inline function fromCast(self:cpp.Reference<msdfgen.FontLibrary>):msdfgen.FontLibraryPtr return cpp.Pointer.addressOf(self);
 }
 @:native("Atlas") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Atlas {
-	public extern function beginAtlas(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void;
-	public extern function endAtlas():haxe.io.Bytes;
+	public extern function begin(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void;
+	public extern function end():haxe.io.Bytes;
 	public extern function generateSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool;
 	public extern function generatePSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool;
 	public extern function generateMSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool;
@@ -257,8 +257,8 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static extern function alloc():msdfgen.AtlasPtr;
 	@:native("delete ")
 	public extern function free():Void;
-	public inline function beginAtlas(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void this.ref.beginAtlas(atlasWidth, atlasHeight, defaultColor, enforceR8);
-	public inline function endAtlas():haxe.io.Bytes return this.ref.endAtlas();
+	public inline function begin(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void this.ref.begin(atlasWidth, atlasHeight, defaultColor, enforceR8);
+	public inline function end():haxe.io.Bytes return this.ref.end();
 	public inline function generateSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return this.ref.generateSDFGlyph(font, charcode, width, height, ox, oy, tx, ty, ccw, range);
 	public inline function generatePSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return this.ref.generatePSDFGlyph(font, charcode, width, height, ox, oy, tx, ty, ccw, range);
 	public inline function generateMSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return this.ref.generateMSDFGlyph(font, charcode, width, height, ox, oy, tx, ty, ccw, range);
@@ -270,7 +270,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:from
 	public static inline function fromCast(self:cpp.Reference<msdfgen.Atlas>):msdfgen.AtlasPtr return cpp.Pointer.addressOf(self);
 }
-@:native("Shape") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Shape {
+@:native("MSDFShape") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Shape {
 	public extern function getBounds():Bounds;
 	public inline function asPtr():msdfgen.ShapePtr return cpp.Pointer.addressOf(this);
 }

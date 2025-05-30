@@ -1,9 +1,19 @@
 common.hxml
 -cpp bin/cpp
 -D no-compilation
+--debug
+-D debug
+-D HXCPP_DEBUG_LINK
+-D IDL_DEBUG
+-D HXCPP_VERBOSE
+-D HXCPP_STACK_TRACE
+-D HXCPP_STACK_LINE
+-D HXCPP_CHECK_POINTER
+-D HXCPP_DEBUG_LINK
+-D HXCPP_CATCH_SEGV
  --next
  --library hl-idl
-# -D cmake_idl_verbose=4
+ -D cmake_idl_verbose=4
  -D HXCPP_VERBOSE
  --run idl.CMakeGenerateHXCPP 
   bin/cpp

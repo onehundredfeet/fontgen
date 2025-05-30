@@ -6,7 +6,7 @@ interface Render {
 	public var renderGlyphs:Array<GlyphInfo>;
 	public function get(char:Int):GlyphInfo;
     
-	public function renderToAtlas(atlas:Atlas):Void;
+	public function renderToAtlas(atlas:AtlasPtr):Void;
 }
 
 class GlyphInfo {

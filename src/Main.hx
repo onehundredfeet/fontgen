@@ -170,17 +170,17 @@ class Main {
 
 		var atlas = Atlas.make();
 
-		atlas.beginAtlas(atlasWidth, atlasHeight, bgColor, rasterR8);
+		atlas.begin(atlasWidth, atlasHeight, bgColor, rasterR8);
 
 		for (renderer in renderers) {
 			if (renderer.renderGlyphs.length == 0)
 				continue;
 			if (info)
 				Sys.println("[Info] Started rendering glyphs from " + renderer.file);
-			renderer.renderToAtlas(atlas);
+			renderer.renderToAtlas(atlas.asPtr());
 		}
 
-		atlas.endAtlas();
+		atlas.end();
 		//atlas.write(pngPath);
 	}
 
@@ -368,6 +368,7 @@ class Main {
 	}
 	
 	static function readInput():Array<GenConfig> {
+		trace('readInput');
 		var args = Sys.args();
 		if (args.length == 0) printHelp();
 		var flags = args.filter( (a) -> a.charCodeAt(0) == '-'.code );

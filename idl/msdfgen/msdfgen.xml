@@ -3,7 +3,10 @@
 
    <cppflag value="-I${MSDFGEN_ROOT}"/>
    <cppflag value="-I${MSDFGEN_ROOT}/msdfgen"/>
-   <findlib value="freetype" link="true"/>  
+   <cppflag value="-I${MSDFGEN_ROOT}/../ext/lodepng"/>
+   <cppflag value="-I${MSDFGEN_ROOT}/../lib/include"/>
+   <findlib value="Freetype" link="true"/>  
+   <findlib value="msdfgen" dir="${MSDFGEN_ROOT}/../lib/lib/cmake/msdfgen" link="true"/>  
 
    <files id="msdfgen_lib">
       <file name="${MSDFGEN_ROOT}/msdfgen_adapter.cpp" /> 
