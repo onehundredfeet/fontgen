@@ -43,12 +43,14 @@ class MSDFFont {
     bool getGlyphMetrics(int charcode, GlyphMetrics *metrics);
     int getKerning(int left, int right);
     const char *getName();
+    MSDFFontMetrics *getMetrics() { return &_metrics; }
 
    private:
     double scale;
     FontSlot *fontSlot;
 	std::string name;
     FontLibrary *_library;
+    MSDFFontMetrics _metrics;
 };
 
 class FontLibraryInternal;
@@ -57,7 +59,7 @@ class FontLibrary {
     FontLibrary();
     ~FontLibrary();
 
-    MSDFFont *load(const char *filename, MSDFFontMetrics *metrics, int fontSize);
+    MSDFFont *load(const char *filename,  int fontSize);
     void unloadAll();
 
    private:
@@ -126,6 +128,10 @@ class Atlas {
 
     void end();
 
+    int imageByteCount();
+	void copyImage( unsigned char *bytes );
+    int bytesPerChannel();
+    int numChannels();
    private:
     AtlasInternal *_internal;
 

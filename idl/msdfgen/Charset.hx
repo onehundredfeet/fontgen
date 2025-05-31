@@ -1,7 +1,9 @@
+package msdfgen;
+
 import haxe.io.Path;
 using StringTools;
 
-@:keep
+//@:keep
 class Charset {
 	// Absolutely gross JS script to pull charset blocks:
 	// https://en.wikipedia.org/wiki/Unicode_block
@@ -422,6 +424,7 @@ class Charset {
 					sets.push(c);
 				}
 			} else {
+				throw "Charset.parse: expected String or Array<String>, got " + Std.string(val);
 				// ???
 			}
 		}

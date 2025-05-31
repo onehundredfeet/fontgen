@@ -105,13 +105,15 @@ abstract Font(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public function getKerning(left:Int, right:Int):Int return 0;
 	@:hlNative("MSDFGen", "Font_getName0")
 	public function getName():String return null;
+	@:hlNative("MSDFGen", "Font_getMetrics0")
+	public function getMetrics():FontMetrics return null;
 }
 abstract FontLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:hlNative("MSDFGen", "FontLibrary_new0")
 	static function new0():msdfgen.FontLibrary return cast(0, FontLibrary);
 	public inline function new():msdfgen.FontLibrary return new0();
-	@:hlNative("MSDFGen", "FontLibrary_load3")
-	public function load(filename:String, metrics:FontMetrics, fontSize:Int):Font return null;
+	@:hlNative("MSDFGen", "FontLibrary_load2")
+	public function load(filename:String, fontSize:Int):Font return null;
 	@:hlNative("MSDFGen", "FontLibrary_unloadAll0")
 	public function unloadAll():Void { }
 }
@@ -122,7 +124,7 @@ abstract Atlas(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:hlNative("MSDFGen", "Atlas_begin4")
 	public function begin(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void { }
 	@:hlNative("MSDFGen", "Atlas_end0")
-	public function end():haxe.io.Bytes return null;
+	public function end():Void { }
 	@:hlNative("MSDFGen", "Atlas_generateSDFGlyph10")
 	public function generateSDFGlyph(font:Font, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return false;
 	@:hlNative("MSDFGen", "Atlas_generatePSDFGlyph10")
@@ -137,6 +139,10 @@ abstract Atlas(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public function generateMSDFPath(shape:Shape, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool return false;
 	@:hlNative("MSDFGen", "Atlas_generatePSDFPath9")
 	public function generatePSDFPath(shape:Shape, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool return false;
+	@:hlNative("MSDFGen", "Atlas_imageByteCount0")
+	public function imageByteCount():Int return 0;
+	@:hlNative("MSDFGen", "Atlas_copyImage1")
+	public function copyImage(data:hl.Bytes):Void { }
 }
 abstract Shape(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:hlNative("MSDFGen", "Shape_getBounds0")
@@ -210,18 +216,20 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public extern function getGlyphMetrics(charcode:Int, metrics:GlyphMetricsPtr):Bool;
 	public extern function getKerning(left:Int, right:Int):Int;
 	public extern function getName():String;
+	public extern function getMetrics():FontMetricsPtr;
 	public inline function asPtr():msdfgen.FontPtr return cpp.Pointer.addressOf(this);
 }
 @:forward @:forwardStatics @:unreflective extern abstract FontPtr(cpp.Pointer<msdfgen.Font>) from cpp.Pointer<msdfgen.Font> to cpp.Pointer<msdfgen.Font> {
 	public inline function getGlyphMetrics(charcode:Int, metrics:GlyphMetricsPtr):Bool return this.ref.getGlyphMetrics(charcode, metrics);
 	public inline function getKerning(left:Int, right:Int):Int return this.ref.getKerning(left, right);
 	public inline function getName():String return this.ref.getName();
+	public inline function getMetrics():FontMetricsPtr return this.ref.getMetrics();
 	public inline function asPtr():msdfgen.FontPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<msdfgen.Font>):msdfgen.FontPtr return cpp.Pointer.addressOf(self);
 }
 @:native("FontLibrary") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class FontLibrary {
-	public extern function load(filename:String, metrics:FontMetricsPtr, fontSize:Int):FontPtr;
+	public extern function load(filename:String, fontSize:Int):FontPtr;
 	public extern function unloadAll():Void;
 	public inline function asPtr():msdfgen.FontLibraryPtr return cpp.Pointer.addressOf(this);
 	@:native("FontLibrary")
@@ -232,7 +240,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static extern function alloc():msdfgen.FontLibraryPtr;
 	@:native("delete ")
 	public extern function free():Void;
-	public inline function load(filename:String, metrics:FontMetricsPtr, fontSize:Int):FontPtr return this.ref.load(filename, metrics, fontSize);
+	public inline function load(filename:String, fontSize:Int):FontPtr return this.ref.load(filename, fontSize);
 	public inline function unloadAll():Void this.ref.unloadAll();
 	public inline function asPtr():msdfgen.FontLibraryPtr return this;
 	@:from
@@ -240,7 +248,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 }
 @:native("Atlas") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class Atlas {
 	public extern function begin(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void;
-	public extern function end():haxe.io.Bytes;
+	public extern function end():Void;
 	public extern function generateSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool;
 	public extern function generatePSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool;
 	public extern function generateMSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool;
@@ -248,6 +256,8 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public extern function generateSDFPath(shape:ShapePtr, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool;
 	public extern function generateMSDFPath(shape:ShapePtr, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool;
 	public extern function generatePSDFPath(shape:ShapePtr, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool;
+	public extern function imageByteCount():Int;
+	public extern function copyImage(data:cpp.Pointer<cpp.UInt8>):Void;
 	public inline function asPtr():msdfgen.AtlasPtr return cpp.Pointer.addressOf(this);
 	@:native("Atlas")
 	public static function make():msdfgen.Atlas;
@@ -258,7 +268,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:native("delete ")
 	public extern function free():Void;
 	public inline function begin(atlasWidth:Int, atlasHeight:Int, defaultColor:Int, enforceR8:Bool):Void this.ref.begin(atlasWidth, atlasHeight, defaultColor, enforceR8);
-	public inline function end():haxe.io.Bytes return this.ref.end();
+	public inline function end():Void this.ref.end();
 	public inline function generateSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return this.ref.generateSDFGlyph(font, charcode, width, height, ox, oy, tx, ty, ccw, range);
 	public inline function generatePSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return this.ref.generatePSDFGlyph(font, charcode, width, height, ox, oy, tx, ty, ccw, range);
 	public inline function generateMSDFGlyph(font:FontPtr, charcode:Int, width:Int, height:Int, ox:Int, oy:Int, tx:Float, ty:Float, ccw:Bool, range:Float):Bool return this.ref.generateMSDFGlyph(font, charcode, width, height, ox, oy, tx, ty, ccw, range);
@@ -266,6 +276,8 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public inline function generateSDFPath(shape:ShapePtr, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool return this.ref.generateSDFPath(shape, width, height, ox, oy, tx, ty, range, scale);
 	public inline function generateMSDFPath(shape:ShapePtr, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool return this.ref.generateMSDFPath(shape, width, height, ox, oy, tx, ty, range, scale);
 	public inline function generatePSDFPath(shape:ShapePtr, width:Float, height:Float, ox:Int, oy:Int, tx:Float, ty:Float, range:Float, scale:Float):Bool return this.ref.generatePSDFPath(shape, width, height, ox, oy, tx, ty, range, scale);
+	public inline function imageByteCount():Int return this.ref.imageByteCount();
+	public inline function copyImage(data:cpp.Pointer<cpp.UInt8>):Void this.ref.copyImage(data);
 	public inline function asPtr():msdfgen.AtlasPtr return this;
 	@:from
 	public static inline function fromCast(self:cpp.Reference<msdfgen.Atlas>):msdfgen.AtlasPtr return cpp.Pointer.addressOf(self);

@@ -1,17 +1,25 @@
-package;
+package msdfgen;
 
-import DataTypes;
-import haxe.xml.Access;
-import Render;
+
+import msdfgen.Render;
 import msdfgen.MSDFGen;
 import sys.io.File;
-import haxe.xml.Parser;
 
-class SvgRender implements Render {
+import msdfgen.Generator;
+import msdfgen.SVGLoader;
+
+typedef SvgDescr = {
+	filename:String,
+	?pathName:String,
+	bounds:Bounds,
+	slot:ShapePtr
+}
+
+
+class GlyphRenderSVG implements Render {
 	public var file:String;
 	public var renderGlyphs:Array<GlyphInfo> = [];
 	public var shapeLibrary:ShapeLibraryPtr;
-	inline static var ENDPOINT_SNAP_RANGE_PROPORTION = 1/16384.;
 	var dfRange = 5.;
 	var glyphMap:Map<Int, GlyphInfo> = new Map();
 	var svgDescrs:Map<Int, SvgDescr> = new Map();
@@ -35,8 +43,8 @@ class SvgRender implements Render {
 		gi.char = char;
 		renderGlyphs.push(gi);
 		glyphMap.set(char, gi);
-		var pathDef = loadSvg(svgfile, path);
-		var snapRange = calcEndpointSnapRange(svgfile);
+		var pathDef = SVGLoader.load(svgfile, path);
+		var snapRange = SVGLoader.calcEndpointSnapRange(svgfile);
 		var slotIndex = shapeLibrary.loadSvgShape(pathDef, config.fontSize, 1, snapRange);
 		var bounds = slotIndex.getBounds();
 
@@ -57,36 +65,8 @@ class SvgRender implements Render {
 		return gi;
 	}
 
-	static function calcEndpointSnapRange(file){
-		var svg:Xml = Parser.parse(File.getContent(file));
-		var root = svg.elementsNamed("svg").next();
-		var w = Std.parseFloat( root.get('width') );
-		var h = Std.parseFloat( root.get('height') );
-		return Math.sqrt(w*w+h*h) * ENDPOINT_SNAP_RANGE_PROPORTION;
-	}
 
-	static function loadSvg(file, pathName) {
-		function findPath(xml:Xml, name) {
-			var access = new Access(xml);
-			for (node in access.elements) {
-				if (node.name == "path") {
-					if (pathName == "" || (node.has.id && node.att.id == pathName))
-						return node.x;
-				} else if (node.name == "g")
-					return findPath(node.x, name);
-			}
-			return null;
-		}
-
-		var svg:Xml = Parser.parse(File.getContent(file));
-		var root = svg.elementsNamed("svg").next();
-		var path:Xml = findPath(root, pathName);
-		if (path == null || !path.exists("d")) {
-			trace('cant find path with name $pathName in file $file');
-			return null;
-		}
-		return path.get("d").toString();
-	}
+	
 
 	public function get(char:Int):GlyphInfo {
 		return glyphMap.get(char);
@@ -128,9 +108,3 @@ class SvgRender implements Render {
 	}
 }
 
-typedef SvgDescr = {
-	filename:String,
-	?pathName:String,
-	bounds:Bounds,
-	slot:ShapePtr
-}

@@ -1,14 +1,16 @@
+package msdfgen;
+
 import haxe.io.Bytes;
 import msdfgen.MSDFGen;
-import DataTypes;
-import Render;
+import msdfgen.Render;
+import msdfgen.SDF;
+import msdfgen.Generator;
 
-class GlyphRender implements  Render {
+class GlyphRenderTTF implements  Render {
 	
 	static var METRICS:FontMetrics = FontMetrics.make();
 	static var GLYPH:GlyphMetrics = GlyphMetrics.make();
 	
-	public var file:String;
 	/** Internal slot index **/
 	public var slot:FontPtr;
 	
@@ -29,12 +31,10 @@ class GlyphRender implements  Render {
 	var glyphMap:Map<Int, GlyphInfo>;
 	public var renderGlyphs:Array<GlyphInfo>;
 	
-	public function new(library : FontLibraryPtr, path:String, config:GenConfig)
-	{
-		file = path;
-		
+	public function new(font : FontPtr,  config:GenConfig)
+	{		
 		var m = METRICS;
-		slot = library.load(path, m, config.fontSize);
+		slot = font;
 		this.ascent = m.ascent;
 		this.descent = m.descent;
 		this.baseLine = m.baseLine;
@@ -48,15 +48,7 @@ class GlyphRender implements  Render {
 		this.dfRange = (mode==Raster)? 0 : config.dfSize;
 		this.extendWidth = config.padding.left + config.padding.right + dfRange;
 		this.extendHeight = config.padding.top + config.padding.bottom + dfRange;
-//		var nameBytes:Bytes = slot.getFontName();
 		fontName = slot.getName();
-		// if (nameBytes.length != 0) {
-		// 	var i = 0;
-		// 	while (i < nameBytes.length) {
-		// 		fontName += String.fromCharCode(nameBytes.get(i) << 8 | nameBytes.get(i+1));
-		// 		i += 2;
-		// 	}
-		// }
 		
 		glyphMap = [];
 		renderGlyphs = [];

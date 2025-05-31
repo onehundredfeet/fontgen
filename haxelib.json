@@ -1,0 +1,10 @@
+{
+	"name" : "h-msdf",
+	"url" : "https://github.com/onehundredfeet/h-msdf",
+	"license" : "MIT",
+	"contributors" : ["onehundredfeet"],
+	"description" : "Bindings and utilities to make fonts from MSDF",
+	"version" : "1.0.0",
+	"classPath": "idl",
+	"releasenote" : ""
+}

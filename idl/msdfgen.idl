@@ -37,11 +37,12 @@ object Font {
 	bool getGlyphMetrics(int charcode, GlyphMetrics *metrics);
 	int getKerning(int left, int right);
 	String getName();
+	FontMetrics *getMetrics();
 };
 
 object FontLibrary {
 	FontLibrary new();
-	Font *load(String filename, FontMetrics *metrics, int fontSize);
+	Font *load(String filename, int fontSize);
 	void unloadAll();
 };
 
@@ -50,7 +51,7 @@ object Atlas {
 	Atlas new();
 
 	void begin(int atlasWidth, int atlasHeight, int defaultColor, bool enforceR8);
-	iobytes end();
+	void end();
 
 	bool generateSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
 	bool generatePSDFGlyph(Font *font, int charcode, int width, int height, int ox, int oy, double tx, double ty, bool ccw, double range);
@@ -60,6 +61,9 @@ object Atlas {
 	bool generateSDFPath(Shape *shape, double width, double height,  int ox, int oy, double tx, double ty, double range, double scale);
 	bool generateMSDFPath(Shape *shape, double width, double height,  int ox, int oy, double tx, double ty, double range, double scale);
 	bool generatePSDFPath(Shape *shape, double width, double height,  int ox, int oy, double tx, double ty, double range, double scale);
+
+	int imageByteCount();
+	void copyImage( bytes data );
 
 };
 

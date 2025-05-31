@@ -53,11 +53,31 @@ MSDFFont::~MSDFFont() {
     }
 }
 
+template <typename T, int N>
+inline int sizeOfBitmap(const Bitmap<T, N>& bitmap) {
+    return sizeof(T) * N * bitmap.width() * bitmap.height();
+}
+
 class AtlasInternal {
    public:
     bool enforceR8 = false;
     bool normalizeShapes = false;
     Bitmap<byte, 4> atlasPixels;
+
+    int numBytes() { return sizeOfBitmap(atlasPixels); }
+
+    int bytesPerChannel() { return 1; }
+
+    int numChannels() { return 4; }
+
+    void copyImage(void* bytes) {
+        const unsigned char* src = atlasPixels(0,0);
+        unsigned char* dst = (unsigned char*)bytes;
+        int size = numBytes();
+        for (int i = 0; i < size; i++) {
+            *dst++ = *src++;
+        }
+    }
 };
 
 Atlas::Atlas() { _internal = new AtlasInternal(); }
@@ -68,6 +88,11 @@ Atlas::~Atlas() {
         _internal = NULL;
     }
 }
+
+int Atlas::bytesPerChannel() { return _internal->bytesPerChannel(); }
+int Atlas::numChannels() { return _internal->numChannels(); }
+int Atlas::imageByteCount() { return _internal->numBytes(); }
+void Atlas::copyImage(unsigned char* bytes){this -> _internal->copyImage(bytes);}
 
 class FontLibraryInternal {
    public:
@@ -131,8 +156,7 @@ ShapeLibrary::~ShapeLibrary() {
     }
 }
 
-MSDFFont* FontLibrary::load(const char* filename, MSDFFontMetrics* metrics,
-                            int fontSize) {
+MSDFFont* FontLibrary::load(const char* filename, int fontSize) {
     FontHandle* msdfHandle = loadFont(_internal->ft, filename);
     if (msdfHandle != NULL) {
         MSDFFont* font = new MSDFFont(this);
@@ -143,6 +167,8 @@ MSDFFont* FontLibrary::load(const char* filename, MSDFFontMetrics* metrics,
         FT_New_Face(_internal->ft_lib, filename, 0, &slot->ft);
         font->scale = (double)fontSize / (double)slot->ft->units_per_EM * 64.;
         FT_Set_Pixel_Sizes(slot->ft, 0, fontSize);
+
+        auto metrics = font->getMetrics();
 
         metrics->ascent = slot->ft->ascender;
         metrics->descent = slot->ft->descender;
@@ -479,6 +505,8 @@ bool Atlas::generatePSDFPath(MSDFShape* msdfShape, double width, double height,
     AtlasUtils::copyGrayBitmapToAtlas(*this, sdf, width, height, ox, oy, false);
     return true;
 }
+
+
 
 MSDFShape* ShapeLibrary::loadSvgShape(const char* path, int fontSize,
                                       double scale, double endpointSnapRange) {
