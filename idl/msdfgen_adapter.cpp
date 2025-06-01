@@ -196,24 +196,52 @@ void FontLibrary::unloadAll() {
     _internal->fonts.clear();
 }
 
+
+
 const char* MSDFFont::getName() {
     if (name.length() == 0) {
         FT_Face face = fontSlot->ft;
-        FT_SfntName name;
-        int count = FT_Get_Sfnt_Name_Count(face);
-        for (int i = 0; i < count; i++) {
-            FT_Get_Sfnt_Name(face, i, &name);
-            if (name.name_id == 4 &&
-                (name.platform_id == 3 || name.platform_id == 0) &&
-                name.language_id == 0x409) {
-                unsigned char* data =
-                    (unsigned char*)malloc(name.string_len + 1);
-                memcpy(data, name.string, name.string_len);
-                data[name.string_len] = '\0';  // Null-terminate the string
-                this->name = std::string((char*)data);
-                free(data);
+        auto stdFamily = std::string(face->family_name);
+        auto stdStyle = std::string(face->style_name);
+        
+        name = stdFamily.length() > 0 ? stdFamily : "";
+
+        if (stdStyle.length() > 0) {
+            if (name.length() > 0) {
+                name += ".";
             }
+            name += stdStyle;
         }
+
+        // FT_SfntName fntName;
+        // int count = FT_Get_Sfnt_Name_Count(face);
+        // for (int i = 0; i < count; i++) {
+        //     FT_Get_Sfnt_Name(face, i, &fntName);
+        //     if (fntName.name_id == 4 &&
+        //         (fntName.platform_id == 3 || fntName.platform_id == 0) &&
+        //         fntName.language_id == 0x409) {
+        //         unsigned char* data =
+        //             (unsigned char*)malloc(fntName.string_len * 2 + 2);
+        //         memcpy(data, fntName.string, fntName.string_len * 2);
+        //         data[fntName.string_len * 2] = '\0';  // Null-terminate the string
+        //         data[fntName.string_len * 2+ 1] = '\0';  // Null-terminate the string
+                
+        //         for (int j = 0; j < fntName.string_len; j++) {
+        //             data[j] = data[j * 2 + 1];  // Convert UTF-16 to UTF-8
+        //         }
+        //         data[fntName.string_len] = '\0';  // Null-terminate the string
+        //         auto dataStr = std::string((char*)data);
+        //         free(data);
+                
+        //         if (dataStr.length() > 0) {
+        //             if (name.length() > 0) {
+        //                 name += ".";
+        //             }
+        //             name += dataStr;
+        //         }
+        //         break;
+        //     }
+        //}
     }
 
     return name.c_str();
