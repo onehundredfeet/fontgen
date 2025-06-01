@@ -18,6 +18,7 @@ import msdfgen.Charset;
 import msdfgen.GlyphRenderSVG;
 import msdfgen.FntFile;
 import msdfgen.Generator;
+import msdfgen.FontAtlasConfig;
 
 typedef Ctx = {
 	renderers:Array<Render>,
@@ -34,7 +35,10 @@ class Main {
 		var gf = generator.loadFont("test/ttf/Cardo-Regular.ttf", 32);
 		var results = generator.generateAtlasFromFont(gf, Charset.BASIC_LATIN, config);
 
-		trace('Generated atlas with width ${results.width} height ${results.height} - ${results.atlas.length} bytes');
+		trace('Generated atlas with width ${results.width} height ${results.height} - ${results.textureZip64.length} 64bytes');
+
+		var json = results.toString();
+		trace('JSON: ${json}');
 	}
 
 	#if false
@@ -269,6 +273,7 @@ class Main {
 		 */
 	}
 
+	/*
 	static function writeFntFile(pngPath, config, glyphs:Array<GlyphInfo>, renderer:Render) {
 		function addKerning(file, glyphs:Array<GlyphInfo>, renderer:GlyphRenderTTF) {
 			final len = glyphs.length;
@@ -331,6 +336,7 @@ class Main {
 			Sys.println("[Timing] FNT generation: " + timeStr(ttfGen - glyphRendering));
 		}
 	}
+		*/
 
 	// static function packGlyphs(config:PackerConfig, glyphs:Array<GlyphInfo>, extendWidth:Int, extendHeight:Int) {
 	// 	var inverse = config.sort.charCodeAt(0) == '-'.code;

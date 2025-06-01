@@ -8,6 +8,7 @@ struct Bounds {
 };
 // Haxe struct for font metrics.
 struct MSDFFontMetrics {
+    int size;
     int ascent;
     int descent;
     int unitsPerEm;

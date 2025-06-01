@@ -27,6 +27,11 @@ abstract FontMetrics(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	@:hlNative("MSDFGen", "FontMetrics_new0")
 	static function new0():msdfgen.FontMetrics return cast(0, FontMetrics);
 	public inline function new():msdfgen.FontMetrics return new0();
+	public var size(get, set) : Int;
+	@:hlNative("MSDFGen", "FontMetrics_get_size")
+	function get_size():Int return 0;
+	@:hlNative("MSDFGen", "FontMetrics_set_size")
+	function set_size(_v:Int):Int return 0;
 	public var ascent(get, set) : Int;
 	@:hlNative("MSDFGen", "FontMetrics_get_ascent")
 	function get_ascent():Int return 0;
@@ -172,6 +177,7 @@ abstract ShapeLibrary(idl.Types.Ref) from idl.Types.Ref to idl.Types.Ref {
 	public static inline function fromCast(self:cpp.Reference<msdfgen.Bounds>):msdfgen.BoundsPtr return cpp.Pointer.addressOf(self);
 }
 @:native("MSDFFontMetrics") @:structAccess @:unreflective @:nativeArrayAccess @:build(idl.macros.MacroTools.buildHXCPPIDLType("${MSDFGEN_IDL_DIR}/msdfgen.idl")) extern class FontMetrics {
+	public var size : Int;
 	public var ascent : Int;
 	public var descent : Int;
 	public var unitsPerEm : Int;

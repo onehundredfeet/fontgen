@@ -15,3 +15,4 @@ build_msdf_debug
 build_msdf_release
 out.txt
 lib
+out.json

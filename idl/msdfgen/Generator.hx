@@ -3,6 +3,8 @@
 // It is used to generate multi-channel signed distance fields from fonts and shapes.
 package msdfgen;
 
+import haxe.zip.Compress;
+import haxe.crypto.Base64;
 import binpacking.NaiveShelfPacker;
 import binpacking.MaxRectsPacker;
 import binpacking.GuillotinePacker;
@@ -11,10 +13,11 @@ import binpacking.SimplifiedMaxRectsPacker;
 import binpacking.SkylinePacker;
 import haxe.io.Bytes;
 import haxe.xml.Access;
-import msdfgen.SDF.SdfMode;
+import msdfgen.SDF;
 import msdfgen.MSDFGen;
 import msdfgen.Charset;
 import msdfgen.PackingAlgorithm;
+import msdfgen.FontAtlasInfo;
 
 typedef GenConfig = AtlasConfig & {
 	var input:String; // path to ttf
@@ -33,30 +36,7 @@ typedef GenConfig = AtlasConfig & {
 	var template:String;
 };
 
-class FontAtlasConfig {
-	public function new() {}
 
-	public var width = 4096;
-	public var height = 4096;
-
-	public var mode = SdfMode.Raster; // Generator mode
-	public var pot = false;
-	public var exact = false;
-	public var sort = GlyphInfo.reverseHeightSort;
-	public var algorithm = PackingAlgorithm.PMaxRects(FreeRectChoiceHeuristic.BestLongSideFit);
-	public var useWasteMap = true;
-
-	public var spacing = {x: 2, y: 2};
-	public var padding = {
-		top: 0,
-		bottom: 0,
-		left: 0,
-		right: 0
-	};
-	public var dfSize = 4;
-
-	public var rasterR8:Bool = false;
-}
 
 class GeneratorFont {
 	public function new(fontPtr:FontPtr) {
@@ -130,7 +110,9 @@ class Generator {
 		return generatorFont;
 	}
 
-	public function generateAtlasFromFont(font:GeneratorFont, charset:Charset, config:FontAtlasConfig):GenerationResult {
+	//			static function writeFntFile(pngPath, config, glyphs:Array<GlyphInfo>, renderer:Render) {
+
+	public function generateAtlasFromFont(font:GeneratorFont, charset:Charset, config:FontAtlasConfig):FontAtlasInfo {
 		// calculate parameters
 		var dfRange = (config.mode == Raster) ? 0 : config.dfSize;
 
@@ -265,7 +247,7 @@ class Generator {
 		for (g in glyphs) {
 			if (g != null && g.width != 0 && g.height != 0) {
 				genFn(g.char, g);
-			} 
+			}
 		}
 
 		atlas.end();
@@ -273,12 +255,18 @@ class Generator {
 		if (bytes == 0) {
 			throw "Failed to generate atlas, no bytes returned.";
 		}
+
 		var imageData = haxe.io.Bytes.alloc(bytes);
 		atlas.copyImage(idl.NativeBytes.fromIO(imageData));
 
 		atlas.free();
 
-		return new GenerationResult(atlasWidth, atlasHeight, imageData);
+		var info = FontAtlasInfo.make(config, glyphs, font.fontPtr);
+		info.width = atlasWidth;
+		info.height = atlasHeight;
+		var compressedData = Compress.run(imageData, 9 );
+		info.textureZip64 = Base64.encode(compressedData);
+		return info;
 	}
 
 	public function dispose() {

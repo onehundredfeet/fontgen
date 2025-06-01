@@ -169,7 +169,7 @@ MSDFFont* FontLibrary::load(const char* filename, int fontSize) {
         FT_Set_Pixel_Sizes(slot->ft, 0, fontSize);
 
         auto metrics = font->getMetrics();
-
+        metrics->size = fontSize;
         metrics->ascent = slot->ft->ascender;
         metrics->descent = slot->ft->descender;
         metrics->unitsPerEm = slot->ft->units_per_EM;

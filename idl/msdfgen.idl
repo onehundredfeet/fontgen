@@ -12,6 +12,7 @@ object Bounds {
 object FontMetrics {
 	FontMetrics new();
 
+	attribute int size;
 	attribute int ascent;
 	attribute int descent;
 	attribute int unitsPerEm;
