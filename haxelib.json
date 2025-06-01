@@ -6,5 +6,8 @@
 	"description" : "Bindings and utilities to make fonts from MSDF",
 	"version" : "1.0.0",
 	"classPath": "idl",
-	"releasenote" : ""
+	"releasenote" : "",
+	"dependencies": {
+		"bin-packing": ""
+	}
 }
