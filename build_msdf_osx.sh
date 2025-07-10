@@ -1,1 +1,2 @@
-cmake --build build_msdf
+cmake --build build/debug/msdf
+cmake --build build/release/msdf

@@ -1,5 +1,6 @@
 package msdfgen;
 
+import haxe.io.Bytes;
 import msdfgen.Generator;
 import msdfgen.MSDFGen;
 import msdfgen.SDF;
@@ -29,6 +30,7 @@ typedef FontAtlasInfoData = {
 
 	var lineHeight:Int;
 	var base:Int;
+	var bytes:Bytes;
 	var textureZip64:String;
 	var width:Int;
 	var height:Int;
@@ -106,7 +108,7 @@ abstract FontAtlasInfo(FontAtlasInfoData) {
 			chars: chars,
 
 			kernings: kernings,
-
+			bytes: null,
 			textureZip64: null
 		});
 	}

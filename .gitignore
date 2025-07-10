@@ -16,3 +16,5 @@ build_msdf_release
 out.txt
 lib
 out.json
+build
+.DS_Store

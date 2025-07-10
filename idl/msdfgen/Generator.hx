@@ -228,10 +228,13 @@ class Generator {
 		inline function translateY(g:GlyphInfo)
 			return Math.floor(halfDF) + 0.5 - g.descent + paddingBottom;
 
+		trace('config.mode: ${config.mode}');
 		var genFn = switch (config.mode) {
 			case MSDF: (char:Int,
-					g:GlyphInfo) -> return atlas.generateMSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
+					g:GlyphInfo) -> {
+						return atlas.generateMSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
 						translateY(g), g.isCCW, dfRange);
+					}
 			case SDF: (char:Int,
 					g:GlyphInfo) -> return atlas.generateSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
 						translateY(g), g.isCCW, dfRange);
@@ -265,6 +268,7 @@ class Generator {
 		info.width = atlasWidth;
 		info.height = atlasHeight;
 		var compressedData = Compress.run(imageData, 9 );
+		info.bytes = imageData;
 		info.textureZip64 = Base64.encode(compressedData);
 		return info;
 	}

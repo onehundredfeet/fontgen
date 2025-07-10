@@ -340,7 +340,7 @@ class AtlasUtils {
     static void copyColorBitmapToAtlas(Atlas& atlas, Bitmap<float, 3>& msdf,
                                        int width, int height, int ox, int oy,
                                        bool ccw) {
-        auto atlasPixels = atlas._internal->atlasPixels;
+        auto &atlasPixels = atlas._internal->atlasPixels;
         oy += height;
         if (ccw) {
             for (int y = height - 1; y >= 0; y--) {
@@ -489,8 +489,10 @@ bool Atlas::generateMSDFGlyph(MSDFFont* font, int charcode, int width,
         double scale = font->scale;
         generateMSDF(msdf, glyph, range / scale, scale,
                      Vector2(tx / scale, ty / scale));
+
         AtlasUtils::copyColorBitmapToAtlas(*this, msdf, width, height, ox, oy,
                                            ccw);
+
         return true;
     }
     return false;
