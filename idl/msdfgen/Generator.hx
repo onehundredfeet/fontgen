@@ -36,8 +36,6 @@ typedef GenConfig = AtlasConfig & {
 	var template:String;
 };
 
-
-
 class GeneratorFont {
 	public function new(fontPtr:FontPtr) {
 		this.fontPtr = fontPtr;
@@ -112,24 +110,207 @@ class Generator {
 
 	//			static function writeFntFile(pngPath, config, glyphs:Array<GlyphInfo>, renderer:Render) {
 
-	public function generateAtlasFromFont(font:GeneratorFont, charset:Charset, config:FontAtlasConfig):FontAtlasInfo {
-		// calculate parameters
-		var dfRange = (config.mode == Raster) ? 0 : config.dfSize;
+	// public function generateAtlasFromFont(font:GeneratorFont, charset:Charset, config:FontAtlasConfig):FontAtlasInfo {
+	// 	// calculate parameters
+	// 	var dfRange = (config.mode == Raster) ? 0 : config.dfSize;
 
-		var paddingLeft = config.padding.left;
-		var paddingTop = config.padding.top;
-		var paddingBottom = config.padding.bottom;
-		var extendWidth = config.padding.left + config.padding.right + dfRange;
-		var extendHeight = config.padding.top + config.padding.bottom + dfRange;
+	// 	var paddingLeft = config.padding.left;
+	// 	var paddingTop = config.padding.top;
+	// 	var paddingBottom = config.padding.bottom;
+	// 	var extendWidth = config.padding.left + config.padding.right + dfRange;
+	// 	var extendHeight = config.padding.top + config.padding.bottom + dfRange;
 
+	// 	var printableChars = [for (c in charset) c].filter(c -> !Charset.NONPRINTING.contains(c));
+	// 	// generate glyphs
+	// 	var glyphs = [
+	// 		for (char in printableChars) {
+	// 			font.getGlyphInfo(char, paddingLeft, paddingTop, extendWidth, extendHeight, dfRange);
+	// 		}
+	// 	];
+	// 	glyphs.sort(config.sort);
+
+	// 	function getPackingFn():(w:Int, h:Int) -> binpacking.Rect {
+	// 		return switch (config.algorithm) {
+	// 			case PackingAlgorithm.PGuillotine:
+	// 				var p = new GuillotinePacker(config.width, config.height);
+	// 				p.insert.bind(_, _, false, BestLongSideFit, MaximizeArea);
+	// 			case PackingAlgorithm.PNaiveShelf:
+	// 				var p = new NaiveShelfPacker(config.width, config.height);
+	// 				p.insert;
+	// 			case PackingAlgorithm.PShelf(heuristic):
+	// 				var p = new ShelfPacker(config.width, config.height, config.useWasteMap);
+	// 				p.insert.bind(_, _, heuristic);
+	// 			case PackingAlgorithm.PSimplifiedMaxRects:
+	// 				var p = new SimplifiedMaxRectsPacker(config.width, config.height);
+	// 				p.insert;
+	// 			case PackingAlgorithm.PSkyline(heuristic):
+	// 				var p = new SkylinePacker(config.width, config.height, true); // Does not expect usage without waste map.
+	// 				p.insert.bind(_, _, heuristic);
+	// 			case PackingAlgorithm.PMaxRects(heuristic):
+	// 				var p = new MaxRectsPacker(config.width, config.height, false);
+	// 				p.insert.bind(_, _, heuristic);
+	// 			default:
+	// 				throw "Unknown packing algorithm: " + config.algorithm;
+	// 		}
+	// 	}
+
+	// 	var insert = getPackingFn();
+	// 	// pack glyphs
+	// 	var xMax = 0;
+	// 	var yMax = 0;
+	// 	for (g in glyphs) {
+	// 		var rect = g.rect = insert(g.width + config.spacing.x, g.height + config.spacing.y);
+	// 		if (rect == null) {
+	// 			throw "Failed to pack glyph: "
+	// 				+ g.char
+	// 				+ ", size: "
+	// 				+ g.width
+	// 				+ "x"
+	// 				+ g.height
+	// 				+ ", extend: "
+	// 				+ config.spacing.x
+	// 				+ "x"
+	// 				+ config.spacing.y;
+	// 		}
+	// 		var tmp = Std.int(rect.x + rect.width);
+	// 		if (tmp > xMax)
+	// 			xMax = tmp;
+	// 		tmp = Std.int(rect.y + rect.height);
+	// 		if (tmp > yMax)
+	// 			yMax = tmp;
+	// 	}
+
+	// 	var atlasWidth = xMax;
+	// 	var atlasHeight = yMax;
+
+	// 	// adjust atlas size
+	// 	if (config.exact) {
+	// 		atlasWidth = config.width;
+	// 		atlasHeight = config.height;
+	// 	} else if (config.pot) {
+	// 		inline function toPOT(v:Int):Int {
+	// 			// https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+	// 			v--;
+	// 			v |= v >> 1;
+	// 			v |= v >> 2;
+	// 			v |= v >> 4;
+	// 			v |= v >> 8;
+	// 			v |= v >> 16;
+	// 			return v + 1;
+	// 		}
+
+	// 		atlasWidth = toPOT(xMax);
+	// 		atlasHeight = toPOT(yMax);
+	// 	}
+
+	// 	// do the render
+
+	// 	var rasterMode = config.mode == Raster;
+	// 	var bgColor = (rasterMode && !config.rasterR8) ? 0x00ffffff : 0xff000000;
+
+	// 	var atlas = AtlasPtr.alloc();
+
+	// 	atlas.begin(atlasWidth, atlasHeight, bgColor, config.rasterR8);
+
+	// 	var halfDF = (dfRange * .5);
+	// 	inline function glyphWidth(g:GlyphInfo)
+	// 		return g.width;
+	// 	inline function glyphHeight(g:GlyphInfo)
+	// 		return g.height;
+	// 	inline function canvasX(g:GlyphInfo)
+	// 		return Std.int(g.rect.x);
+	// 	inline function canvasY(g:GlyphInfo)
+	// 		return Std.int(g.rect.y);
+	// 	inline function translateX(g:GlyphInfo)
+	// 		return g.xOffset - 0.5;
+	// 	inline function translateY(g:GlyphInfo)
+	// 		return Math.floor(halfDF) + 0.5 - g.descent + paddingBottom;
+
+	// 	trace('config.mode: ${config.mode}');
+	// 	var genFn = switch (config.mode) {
+	// 		case MSDF: (char:Int, g:GlyphInfo) -> {
+	// 				return atlas.generateMSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g),
+	// 					g.isCCW, dfRange);
+	// 			}
+	// 		case SDF: (char:Int,
+	// 				g:GlyphInfo) -> return atlas.generateSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
+	// 					translateY(g), g.isCCW, dfRange);
+	// 		case PSDF: (char:Int,
+	// 				g:GlyphInfo) -> return atlas.generatePSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
+	// 					translateY(g), g.isCCW, dfRange);
+	// 		case Raster:
+	// 			(char:Int,
+	// 					g:GlyphInfo) -> return atlas.rasterizeGlyph(font.fontPtr, char, g.width, g.height, canvasX(g) + paddingLeft,
+	// 					canvasY(g) + paddingTop); // todo is +padding required here, g.rect already contains it.
+	// 	}
+
+	// 	for (g in glyphs) {
+	// 		if (g != null && g.width != 0 && g.height != 0) {
+	// 			genFn(g.char, g);
+	// 		}
+	// 	}
+
+	// 	atlas.end();
+	// 	var bytes = atlas.imageByteCount();
+	// 	if (bytes == 0) {
+	// 		throw "Failed to generate atlas, no bytes returned.";
+	// 	}
+
+	// 	var imageData = haxe.io.Bytes.alloc(bytes);
+	// 	atlas.copyImage(idl.NativeBytes.fromIO(imageData));
+
+	// 	atlas.free();
+
+	// 	var info = FontAtlasInfo.make(config, [{glyphs:glyphs, font: font.fontPtr}] );
+	// 	info.width = atlasWidth;
+	// 	info.height = atlasHeight;
+	// 	var compressedData = Compress.run(imageData, 9);
+	// 	info.bytes = imageData;
+	// 	info.textureZip64 = Base64.encode(compressedData);
+	// 	return info;
+	// }
+
+	public function generateAtlasFromFonts(charset:Charset, config:FontAtlasConfig):FontAtlasInfo {
+		// var gf = loadFont("test/ttf/Cardo-Regular.ttf", 32);
 		var printableChars = [for (c in charset) c].filter(c -> !Charset.NONPRINTING.contains(c));
+
+		var planeGlyphs:Array<Array<GlyphInfo>> = [];
+
+		var fonts : Array<GeneratorFont> = [];
+
+		var planes : Array<{glyphs:Array<GlyphInfo>, font:FontPtr}> = [];
+
+		for (i in 0...config.planes.length) {
+			var plane = config.planes[i];
+			var font = loadFont(plane.file, plane.size);
+			fonts.push(font);
+			var dfRange = (config.mode == Raster) ? 0 : plane.dfSize;
+
+			var paddingLeft = plane.padding.left;
+			var paddingTop = plane.padding.top;
+			var paddingBottom = plane.padding.bottom;
+			var extendWidth = plane.padding.left + plane.padding.right + dfRange;
+			var extendHeight = plane.padding.top + plane.padding.bottom + dfRange;
+
+			var glyphs = [
+				for (char in printableChars) {
+					var info = font.getGlyphInfo(char, paddingLeft, paddingTop, extendWidth, extendHeight, dfRange);
+					info.plane = i;
+					info;
+				}
+			];
+
+			planeGlyphs.push(glyphs);
+			planes.push({glyphs: glyphs, font: font.fontPtr});
+		}
+		// calculate parameters
+
 		// generate glyphs
-		var glyphs = [
-			for (char in printableChars) {
-				font.getGlyphInfo(char, paddingLeft, paddingTop, extendWidth, extendHeight, dfRange);
-			}
-		];
-		glyphs.sort(config.sort);
+		var allGlyphs:Array<GlyphInfo> = [];
+		for (glyphs in planeGlyphs) {
+			allGlyphs = allGlyphs.concat(glyphs);
+		}
+		allGlyphs.sort(config.sort);
 
 		function getPackingFn():(w:Int, h:Int) -> binpacking.Rect {
 			return switch (config.algorithm) {
@@ -160,7 +341,7 @@ class Generator {
 		// pack glyphs
 		var xMax = 0;
 		var yMax = 0;
-		for (g in glyphs) {
+		for (g in allGlyphs) {
 			var rect = g.rect = insert(g.width + config.spacing.x, g.height + config.spacing.y);
 			if (rect == null) {
 				throw "Failed to pack glyph: "
@@ -214,7 +395,6 @@ class Generator {
 
 		atlas.begin(atlasWidth, atlasHeight, bgColor, config.rasterR8);
 
-		var halfDF = (dfRange * .5);
 		inline function glyphWidth(g:GlyphInfo)
 			return g.width;
 		inline function glyphHeight(g:GlyphInfo)
@@ -225,29 +405,32 @@ class Generator {
 			return Std.int(g.rect.y);
 		inline function translateX(g:GlyphInfo)
 			return g.xOffset - 0.5;
-		inline function translateY(g:GlyphInfo)
-			return Math.floor(halfDF) + 0.5 - g.descent + paddingBottom;
+		inline function translateY(g:GlyphInfo) {
+			var plane = config.planes[g.plane];
+			var halfDF = (plane.dfSize * .5);
+			return Math.floor(halfDF) + 0.5 - g.descent + plane.padding.bottom;
+		}
 
 		trace('config.mode: ${config.mode}');
 		var genFn = switch (config.mode) {
-			case MSDF: (char:Int,
-					g:GlyphInfo) -> {
-						return atlas.generateMSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
-						translateY(g), g.isCCW, dfRange);
-					}
+			case MSDF: (char:Int, g:GlyphInfo) -> {
+				var plane = config.planes[g.plane];
+					return atlas.generateMSDFGlyph(fonts[g.plane].fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g), translateY(g),
+						g.isCCW, config.planes[g.plane].dfSize);
+				}
 			case SDF: (char:Int,
-					g:GlyphInfo) -> return atlas.generateSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
-						translateY(g), g.isCCW, dfRange);
+					g:GlyphInfo) -> return atlas.generateSDFGlyph(fonts[g.plane].fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
+						translateY(g), g.isCCW, config.planes[g.plane].dfSize);
 			case PSDF: (char:Int,
-					g:GlyphInfo) -> return atlas.generatePSDFGlyph(font.fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
-						translateY(g), g.isCCW, dfRange);
+					g:GlyphInfo) -> return atlas.generatePSDFGlyph(fonts[g.plane].fontPtr, char, glyphWidth(g), glyphHeight(g), canvasX(g), canvasY(g), translateX(g),
+						translateY(g), g.isCCW, config.planes[g.plane].dfSize);
 			case Raster:
 				(char:Int,
-						g:GlyphInfo) -> return atlas.rasterizeGlyph(font.fontPtr, char, g.width, g.height, canvasX(g) + paddingLeft,
-						canvasY(g) + paddingTop); // todo is +padding required here, g.rect already contains it.
+						g:GlyphInfo) -> return atlas.rasterizeGlyph(fonts[g.plane].fontPtr, char, g.width, g.height, canvasX(g) + config.planes[g.plane].padding.left,
+						canvasY(g) + config.planes[g.plane].padding.top); // todo is +padding required here, g.rect already contains it.
 		}
 
-		for (g in glyphs) {
+		for (g in allGlyphs) {
 			if (g != null && g.width != 0 && g.height != 0) {
 				genFn(g.char, g);
 			}
@@ -264,12 +447,12 @@ class Generator {
 
 		atlas.free();
 
-		var info = FontAtlasInfo.make(config, glyphs, font.fontPtr);
+		var info = FontAtlasInfo.make(config, planes);
+		info.face = "unknown"; // TODO: support face name
+		info.textureZip64 =  Base64.encode(Compress.run(imageData, 9));
+		info.bytes = imageData;
 		info.width = atlasWidth;
 		info.height = atlasHeight;
-		var compressedData = Compress.run(imageData, 9 );
-		info.bytes = imageData;
-		info.textureZip64 = Base64.encode(compressedData);
 		return info;
 	}
 

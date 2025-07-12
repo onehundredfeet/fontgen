@@ -14,6 +14,7 @@ struct MSDFFontMetrics {
     int unitsPerEm;
     int baseLine;
     int lineHeight;
+    int styleFlags;
     int flags;
 };
 

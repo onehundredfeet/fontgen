@@ -15,6 +15,7 @@ class GlyphInfo {
 	
 	public var rect:Rect;
 	public var renderer:GlyphRenderTTF;
+	public var plane:Int;
 	
 	public function new() {
 		char = -1;

@@ -175,6 +175,8 @@ MSDFFont* FontLibrary::load(const char* filename, int fontSize) {
         metrics->unitsPerEm = slot->ft->units_per_EM;
         metrics->baseLine = (slot->ft->size->metrics.ascender + 32) >> 6;
         metrics->lineHeight = (slot->ft->size->metrics.height + 32) >> 6;
+        metrics->styleFlags = slot->ft->style_flags;
+
         TT_Header* header =
             (TT_Header*)FT_Get_Sfnt_Table(slot->ft, FT_SFNT_HEAD);
         metrics->flags = (int)header->Mac_Style | header->Flags << 16;
@@ -184,6 +186,17 @@ MSDFFont* FontLibrary::load(const char* filename, int fontSize) {
     }
     return nullptr;
 }
+
+/*
+face_flags	
+A set of bit flags that give important information about the face; see FT_FACE_FLAG_XXX for the details.
+style_flags	
+The lower 16 bits contain a set of bit flags indicating the style of the face; see FT_STYLE_FLAG_XXX for the details.
+[Since 2.6.1] Bits 16-30 hold the number of named instances available for the current face if we have a GX or OpenType variation (sub)font. Bit 31 is always zero (that is, style_flags is always a positive value). Note that a variation font has always at least one named instance, namely the default instance.
+
+FT_STYLE_FLAG_ITALIC
+FT_STYLE_FLAG_BOLD
+*/
 
 // No single font unload, because there's no point.
 void FontLibrary::unloadAll() {
