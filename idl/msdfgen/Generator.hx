@@ -95,8 +95,9 @@ class Generator {
 	}
 
 	public function loadFont(path:String, size:Int) {
-		if (_fontMap.exists(path)) {
-			return _fontMap.get(path);
+		var key = path + ":" + size;
+		if (_fontMap.exists(key)) {
+			return _fontMap.get(key);
 		}
 
 		var fontPtr = fontLibrary.load(path, size);
@@ -104,7 +105,7 @@ class Generator {
 			throw "Failed to load font from path: " + path;
 		}
 		var generatorFont = new GeneratorFont(fontPtr);
-		_fontMap.set(path, generatorFont);
+		_fontMap.set(key, generatorFont);
 		return generatorFont;
 	}
 
@@ -282,6 +283,7 @@ class Generator {
 
 		for (i in 0...config.planes.length) {
 			var plane = config.planes[i];
+			trace('Loading plane ${i} font: ${plane.file} size: ${plane.size}');
 			var font = loadFont(plane.file, plane.size);
 			fonts.push(font);
 			var dfRange = (config.mode == Raster) ? 0 : plane.dfSize;
